@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { GameManager } from "../classes/GameManager";
+import { GameManager } from "../../shared/classes/GameManager";
 
 const gameManager = new GameManager();
 

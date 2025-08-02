@@ -4,6 +4,7 @@ import logo from '../src/assets/Logo.png';
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -12,7 +13,7 @@ const LoginPage = () => {
       const res = await fetch("http://localhost:5050/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -56,7 +57,8 @@ const LoginPage = () => {
           className="w-full border-b border-gray-400 focus:outline-none focus:border-primary py-2 mb-6 text-sm text-gray-400"
           type="password"
           placeholder="Password"
-          disabled
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         {/* Login Button */}

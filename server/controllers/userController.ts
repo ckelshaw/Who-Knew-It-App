@@ -17,6 +17,7 @@ export const listUsers = async (_req: Request, res: Response) => {
     .from("users")
     .select("*");
   if (error) return res.status(500).json({ error: error.message });
+  console.log(data);
   return res.json(data);
 };
 
