@@ -2,38 +2,25 @@ import { Request, Response } from "express";
 import { supabase } from "../db/supabaseClient";
 import { CreateGameBody, Game } from "../types/types";
 
-export const createGame = async (
-  req: Request<{}, {}, CreateGameBody>,
-  res: Response
-) => {
+
+export const createGame = async (req: Request, res: Response) => {
+  
+  const gameData = req.body;
+
   try {
-    const { name, date, users } = req.body;
+    const { data, error } = await supabase.rpc('insert_full_game', {
+      game_data: gameData,
+    });
 
-    const { data: game, error } = await supabase
-      .from("games")
-      .insert({ name, date, game_status: "planned" })
-      .select()
-      .single();
+    if (error) {
+      console.error('Supabase RPC error:', error.message);
+      return res.status(500).json({ error: 'Failed to save game to database.' });
+    }
 
-    if (error || !game) return res.status(500).json({ error: error?.message });
-
-    // Add users to Users_Games join table
-    const userRows = users.map((user_id) => ({
-      user_id,
-      game_id: game.game_id,
-      score: 0,
-      correct_guesses: 0,
-      answers_baited: 0,
-    }));
-
-    const { error: ugError } = await supabase
-      .from("users_games")
-      .insert(userRows);
-    if (ugError) return res.status(500).json({ error: ugError.message });
-
-    return res.status(201).json({ message: "Game created", game });
+    return res.status(201).json({ game_id: data });
   } catch (err) {
-    return res.status(500).json({ error: "Error creating game" });
+    console.error('Unexpected error:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
   }
 };
 

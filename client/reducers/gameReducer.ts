@@ -1,8 +1,7 @@
-
-import { User } from '../../shared/classes/User';
-import { Question } from '../../shared/classes/Question';
-import { Answer } from '../../shared/classes/Answer';
-import { Game, type GameStatus } from '../../shared/classes/Game';
+import { User } from "../../shared/classes/User";
+import { Question } from "../../shared/classes/Question";
+import { Answer } from "../../shared/classes/Answer";
+import { Game, type GameStatus } from "../../shared/classes/Game";
 
 type GameAction =
   | { type: "SET_NAME"; payload: string }

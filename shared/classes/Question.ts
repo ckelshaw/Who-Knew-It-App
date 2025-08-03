@@ -8,6 +8,7 @@ export class Question {
   private _round_number?: number;
   private _date_created: string;
   private _answers: Answer[];
+  private _notes: string;
 
   constructor(
     id: string,
@@ -16,6 +17,7 @@ export class Question {
     submitted_by: string,
     date_created: string,
     answer: Answer[],
+    notes: string,
     round_number?: number
   ) {
     this._id = id;
@@ -25,6 +27,7 @@ export class Question {
     this._round_number = round_number;
     this._date_created = date_created;
     this._answers = answer;
+    this._notes = notes;
   }
 
   // #region Getters Setters
@@ -71,6 +74,12 @@ export class Question {
   public set answers(value: Answer[]) {
     this._answers = value;
   }
+  public get notes(): string {
+    return this._notes;
+  }
+  public set notes(value: string) {
+    this._notes = value;
+  }
   // #endregion
 
   copyWith(partial: Partial<Question>): Question {
@@ -81,6 +90,7 @@ export class Question {
     partial.submitted_by ?? this._submitted_by,
     partial.date_created ?? this._date_created,
     partial.answers ?? [...this._answers],
+    partial.notes ?? this._notes,
     partial.round_number ?? this._round_number
   );
 }

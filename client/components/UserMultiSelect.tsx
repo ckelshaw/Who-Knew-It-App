@@ -26,7 +26,7 @@ const UserMultiSelect = ({ users, selected, onChange }: Props) => {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-2 mb-4">
       <label className="font-medium block mb-2">Select Contestants:</label>
       <Select
         isMulti

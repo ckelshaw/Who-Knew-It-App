@@ -54,7 +54,7 @@ const AdminDashboard = () => {
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Top Card: Create Game */}
-        <div className="col-span-8 lg:col-span-24 bg-white rounded-xl p-6 text-gray-900 shadow-md">
+        <div className="col-span-8 lg:col-span-32 bg-white rounded-xl p-6 text-gray-900 shadow-md">
             <CreateGameCard />
         </div>
         {/* <div className="col-span-8 lg:col-span-24 bg-white rounded-xl p-6 text-gray-900 shadow-md">

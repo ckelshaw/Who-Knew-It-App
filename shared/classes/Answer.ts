@@ -5,6 +5,7 @@ export class Answer {
   private _submitted_by: string;
   private _correct: boolean;
   private _date_created: string;
+  private _notes: string
 
   constructor(
     id: string,
@@ -12,7 +13,8 @@ export class Answer {
     answer_text: string,
     submitted_by: string,
     correct: boolean,
-    date_created: string
+    date_created: string,
+    notes: string
   ) {
     this._id = id;
     this._question_id = question_id;
@@ -20,6 +22,7 @@ export class Answer {
     this._submitted_by = submitted_by;
     this._correct = correct;
     this._date_created = date_created;
+    this._notes = notes;
   }
 
   // #region Getters Setters
@@ -58,6 +61,12 @@ export class Answer {
   }
   public set date_created(value: string) {
     this._date_created = value;
+  }
+  public get notes(): string {
+    return this._notes;
+  }
+  public set notes(value: string) {
+    this._notes = value;
   }
 
   //#endregion
