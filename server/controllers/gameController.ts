@@ -37,7 +37,7 @@ export const getGameById = async (req: Request, res: Response) => {
 
 export const listGames = async (_req: Request, res: Response) => {
   const { data, error } = await supabase
-    .from("games")
+    .from("planned_games_view")
     .select("*");
   if (error) return res.status(500).json({ error: error.message });
   return res.json(data);

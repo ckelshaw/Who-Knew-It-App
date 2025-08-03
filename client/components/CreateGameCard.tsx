@@ -30,9 +30,7 @@ const CreateGameCard = () => {
   const [questionText, setQuestionText] = useState("");
   const [questionNoteText, setQuestionNoteText] = useState('');
   const [isAddingAnswers, setIsAddingAnswers] = useState(false);
-  const [answerInputs, setAnswerInputs] = useState<NewAnswerInput[]>([{ text: '', isCorrect: false, notes: '' }])
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [answerInputs, setAnswerInputs] = useState<NewAnswerInput[]>([{ text: '', isCorrect: false, notes: '' }]);
   const [theHouse, setTheHouse] = useState<User>();
 
   const saveGame = async () => {
@@ -161,12 +159,10 @@ const CreateGameCard = () => {
         setAllUsers(userInstances);
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setError(err.message);
+          console.error(err.message);
         } else {
-          setError('Error fetching users');
+          console.error('Error fetching users');
         }
-      } finally {
-        setLoading(false);
       }
     };
 

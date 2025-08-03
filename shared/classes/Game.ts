@@ -64,9 +64,7 @@ export class Game {
   public get game_status(): GameStatus {
     return this._game_status;
   }
-  public set game_status(
-    value: GameStatus
-  ) {
+  public set game_status(value: GameStatus) {
     this._game_status = value;
   }
   public get created_at(): string {
@@ -107,6 +105,51 @@ export class Game {
       partial["contestants"] ?? [...this._contestants],
       partial["questions"] ?? [...this._questions],
       partial["currentRound"] ?? this._currentRound
+    );
+  }
+
+  static plannedFromJson(obj: any): Game {
+    return new Game(
+      obj.game_id,
+      obj.game_name,
+      obj.date,
+      null,
+      obj.game_status,
+      obj.created_at,
+      obj.contestants
+        ? obj.contestants.map(
+            (u: any) =>
+              new User(u.user_id, u.first_name, u.last_name, u.nickname)
+          )
+        : [],
+      [],
+      0
+    );
+  }
+
+  static completedFromJson(obj: any): Game {
+    return new Game(
+      obj.game_id,
+      obj.game_name,
+      obj.date,
+      obj.winner
+        ? new User(
+            obj.winner.user_id,
+            obj.winner.first_name,
+            obj.winner.last_name,
+            obj.winner.nickname
+          )
+        : null,
+      obj.game_status,
+      obj.created_at,
+      obj.contestants
+        ? obj.contestants.map(
+            (u: any) =>
+              new User(u.user_id, u.first_name, u.last_name, u.nickname)
+          )
+        : [],
+      [], // or map questions if included
+      0
     );
   }
 
