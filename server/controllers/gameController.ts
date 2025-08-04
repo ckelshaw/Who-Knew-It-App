@@ -25,14 +25,21 @@ export const createGame = async (req: Request, res: Response) => {
 };
 
 export const getGameById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { data, error } = await supabase
-    .from("games")
-    .select("*")
-    .eq("game_id", id)
-    .single();
-  if (error) return res.status(500).json({ error: error.message });
-  return res.json(data);
+  const { game_id } = req.params;
+  console.log(game_id);
+
+  try {
+    const { data, error } = await supabase.rpc("get_full_game", {
+      game_uuid: game_id, // MUST match function parameter name
+    });
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    return res.json(data);
+  } catch (err) {
+    console.error("Failed to fetch game: ", err);
+    return res.status(500).json({ error: "Server error" });
+  }
 };
 
 export const listGames = async (_req: Request, res: Response) => {

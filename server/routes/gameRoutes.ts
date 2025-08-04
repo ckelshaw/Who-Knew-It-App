@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router.post('/', createGame);
-router.get('/:id', getGameById);
+router.get('/:game_id', getGameById);
 router.get('/', listGames);
 router.put('/:id/status', updateGameStatus);
 
