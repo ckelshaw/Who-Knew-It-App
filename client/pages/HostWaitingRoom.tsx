@@ -5,18 +5,24 @@ import { Question } from "../../shared/classes/Question";
 import { Answer } from "../../shared/classes/Answer";
 import { Game } from '../../shared/classes/Game';
 import { User } from '../../shared/classes/User';
+import ScoreBanner from '../components/ScoreBanner';
+
+type incomingUser = {
+    id: string,
+    first_name: string,
+    last_name: string,
+    nickname: string
+};
 
 const HostWaitingRoom = () => {
     const { game_id } = useParams();
     const [game, dispatch] = useReducer(gamePlayReducer, initialGameState)
 
     const fetchGame = async () => {
-        console.log("ID: ", game_id);
         try {
             const response = await fetch(`/api/games/${game_id}`);
             const data = await response.json();
-            console.log(data);
-            const contestants = data.contestants.map((u) => {
+            const contestants = data.users.map((u: incomingUser) => {
                 return new User(u.id, u.first_name, u.last_name, u.nickname);
             })
             const questions = data.questions.map((q: Question) => {
@@ -25,7 +31,6 @@ const HostWaitingRoom = () => {
                 })
                 return new Question(q.id, data.game_id, q.question_text, "", "", answers, q.notes, 0);
             })
-            console.log("Questions: ", questions);
             dispatch({ type: 'SET_GAME', payload: new Game(data.game_id, 
                 data.name, 
                 new Date().toISOString(), 
@@ -42,11 +47,14 @@ const HostWaitingRoom = () => {
         fetchGame();
     },[])
 
-    console.log(game);
+
+    if(game.contestants.length === 0) return <p>Loading...</p>
 
     return (
         <>
+            <ScoreBanner users={game.contestants}></ScoreBanner>
             <div>Game Waiting Room</div>
+            <button></button>
         </>
     );
 };

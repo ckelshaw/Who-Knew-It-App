@@ -63,6 +63,10 @@ export class User {
       ? `${this._first_name} "${this._nickname}" ${this._last_name}`
       : `${this._first_name} ${this._last_name}`;
   }
+
+  public get initials(): string {
+    return `${this._first_name[0]}${this._last_name[0]}`;
+  }
   //#endregion
 
 
