@@ -30,7 +30,7 @@ export const getGameById = async (req: Request, res: Response) => {
 
   try {
     const { data, error } = await supabase.rpc("get_full_game", {
-      game_uuid: game_id, // MUST match function parameter name
+      game_uuid: game_id,
     });
 
     if (error) return res.status(500).json({ error: error.message });
