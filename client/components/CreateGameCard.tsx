@@ -15,7 +15,8 @@ type rawUser = {
   user_id: string,
   first_name: string,
   last_name: string,
-  nickname: string
+  nickname: string,
+  role: string
 }
 
 type NewAnswerInput = {
@@ -147,12 +148,12 @@ const CreateGameCard = () => {
 
         const rawData = await res.json();
         const userInstances = rawData.map((u: rawUser) =>
-          new User(u.user_id, u.first_name, u.last_name, u.nickname ?? '')
+          new User(u.user_id, u.first_name, u.last_name, u.nickname ?? '', u.role)
         );
 
         userInstances.forEach(user => {
-            if(user.first_name === 'Matt' && user.last_name === "Stewart"){
-                setTheHouse(new User(user.user_id, user.first_name, user.last_name, user.nickname ?? ''));
+            if(user.role === "host"){
+              setTheHouse(new User(user.userId, user.firstName, user.lastName, user.nickname, user.role));
             }
         });
 
@@ -206,6 +207,7 @@ const CreateGameCard = () => {
         <Label>Contestants</Label>
         <UserMultiSelect
           users={allUsers}
+          theHouse={theHouse}
           selected={(game.contestants || []).map((u) => u.userId)}
           onChange={handleSetContestants}
         />

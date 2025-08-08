@@ -6,12 +6,15 @@ import { Answer } from "../../shared/classes/Answer";
 import { Game } from '../../shared/classes/Game';
 import { User } from '../../shared/classes/User';
 import ScoreBanner from '../components/ScoreBanner';
+import HostQuestionDisplay from "../components/HostQuestionDisplay";
+import type { GuessRecord } from '../src/types/GuessRecord'
 
 type incomingUser = {
     id: string,
     first_name: string,
     last_name: string,
-    nickname: string
+    nickname: string,
+    role: string
 };
 
 const HostWaitingRoom = () => {
@@ -22,8 +25,9 @@ const HostWaitingRoom = () => {
         try {
             const response = await fetch(`/api/games/${game_id}`);
             const data = await response.json();
+            console.log(data);
             const contestants = data.users.map((u: incomingUser) => {
-                return new User(u.id, u.first_name, u.last_name, u.nickname);
+                return new User(u.id, u.first_name, u.last_name, u.nickname, u.role);
             })
             const questions = data.questions.map((q: Question) => {
                 const answers = q.answers.map((a: Answer) => {
@@ -43,6 +47,12 @@ const HostWaitingRoom = () => {
         }
     }
 
+    const submitSelections = (selections: GuessRecord[]) => {
+        console.log("Selections:", selections);
+        dispatch({ type: "GUESS_ANSWER", payload: selections });
+        console.log(game);
+    }
+
     useEffect(() => {
         fetchGame();
     },[])
@@ -53,8 +63,16 @@ const HostWaitingRoom = () => {
     return (
         <>
             <ScoreBanner users={game.contestants}></ScoreBanner>
-            <div>Game Waiting Room</div>
-            <button></button>
+            {game.questions.map((q, index) => (
+                <HostQuestionDisplay 
+                    key={index} 
+                    question={q} 
+                    contestants={game.contestants} 
+                    questionNumber={index + 1} 
+                    submitSelections={submitSelections} 
+                />
+            ))}
+            
         </>
     );
 };
