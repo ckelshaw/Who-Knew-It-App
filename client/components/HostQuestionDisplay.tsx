@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
+// import { DndContext, DragEndEvent } from '@dnd-kit/core'
+// import { SortableContext, arrayMove, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+// import { CSS } from '@dnd-kit/utilities';
 import { Question } from '../../shared/classes/Question';
 import { User } from '../../shared/classes/User';
-import Select, { type MultiValue } from 'react-select';
+import Select, { type MultiValue, type StylesConfig } from 'react-select';
 import type { GuessRecord } from '../src/types/GuessRecord'
+// import type { Guess } from '../../shared/types/types';
 
 type HQDProps = {
     question: Question;
+    roundNumber: number | undefined;
     contestants: User[];
     questionNumber: number;
     submitSelections: (selections: GuessRecord[]) => void;
+    advanceRound: () => void;
 }
 
 type Option = {
@@ -17,10 +23,9 @@ type Option = {
 }
 
 
-const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSelections }: HQDProps) => {
-    console.log(contestants);
+const HostQuestionDisplay = ({ question, roundNumber, contestants, questionNumber, submitSelections, advanceRound }: HQDProps) => {
     const [selections, setSelections] = useState<GuessRecord[]>([]);
-
+    const [showNextRoundBtn, setshowNextRoundBtn] = useState(false);
     const handleSelectChange = (answerId: string, newValue: MultiValue<Option>) => {
         const selectedUserIds = newValue.map(o => o.value); // users chosen for this answer
 
@@ -55,9 +60,14 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
       return m;
     }, [contestants]);
 
+    const submitAnswers = (selections: GuessRecord[]) => {
+        setshowNextRoundBtn(true);
+        submitSelections(selections);
+    }
+
     // Custom styles for react-select to match minimalist design
-    const selectStyles = {
-      control: (provided: any, state: any) => ({
+    const selectStyles: StylesConfig<Option, true> = {
+      control: (provided, state) => ({
         ...provided,
         backgroundColor: 'rgb(249 250 251)',
         border: 'none',
@@ -73,28 +83,28 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
           outlineOffset: '2px',
         })
       }),
-      valueContainer: (provided: any) => ({
+      valueContainer: (provided) => ({
         ...provided,
         padding: '4px 8px',
       }),
-      placeholder: (provided: any) => ({
+      placeholder: (provided) => ({
         ...provided,
         color: 'rgb(156 163 175)',
         fontSize: '14px',
       }),
-      multiValue: (provided: any) => ({
+      multiValue: (provided) => ({
         ...provided,
         backgroundColor: 'rgb(229 231 235)',
         borderRadius: '4px',
         margin: '2px',
       }),
-      multiValueLabel: (provided: any) => ({
+      multiValueLabel: (provided) => ({
         ...provided,
         fontSize: '13px',
         color: 'rgb(55 65 81)',
         padding: '2px 6px',
       }),
-      multiValueRemove: (provided: any) => ({
+      multiValueRemove: (provided) => ({
         ...provided,
         color: 'rgb(107 114 128)',
         '&:hover': {
@@ -102,13 +112,13 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
           color: 'white',
         },
       }),
-      menu: (provided: any) => ({
+      menu: (provided) => ({
         ...provided,
         border: 'none',
         borderRadius: '8px',
         boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
       }),
-      option: (provided: any, state: any) => ({
+      option: (provided, state) => ({
         ...provided,
         backgroundColor: state.isSelected 
           ? 'rgb(99 102 241)' 
@@ -124,7 +134,7 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
       indicatorSeparator: () => ({
         display: 'none',
       }),
-      dropdownIndicator: (provided: any) => ({
+      dropdownIndicator: (provided) => ({
         ...provided,
         color: 'rgb(156 163 175)',
         '&:hover': {
@@ -134,7 +144,11 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
     };
 
     return (
-      <div className="space-y-8 mb-4">
+      <div
+        className={`space-y-8 mb-4 transition-opacity duration-300 ${
+          roundNumber !== questionNumber ? "opacity-50 pointer-events-none" : ""
+        }`}
+      >
         <div className="bg-white rounded-lg p-8 space-y-6">
           <div className="space-y-2">
             <div className="text-lg text-gray-500 tracking-wide uppercase">
@@ -144,7 +158,7 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
               {question.question_text}
             </h1>
           </div>
-          
+
           <div className="space-y-6">
             {question.answers.map((a, index) => {
               const submitterName =
@@ -186,8 +200,7 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
                         value={userOptions.filter((opt) =>
                           selections.some(
                             (s) =>
-                              s.answer_id === a.id &&
-                              s.chosen_by === opt.value
+                              s.answer_id === a.id && s.chosen_by === opt.value
                           )
                         )}
                         onChange={(nv) => handleSelectChange(a.id, nv)}
@@ -211,12 +224,32 @@ const HostQuestionDisplay = ({ question, contestants, questionNumber, submitSele
                 </div>
               );
             })}
-            {selections.length === contestants.length - 1 && (
-                <button type="button" onClick={() => submitSelections(selections)} >Submit Answers</button>
+            <details className="group" open>
+              <summary className="cursor-pointer text-md text-gray-600 hover:text-gray-800 transition-colors duration-150 select-none flex items-center space-x-2">
+                <span className="transition-transform duration-150 group-open:rotate-90 text-gray-400">
+                  ▶
+                </span>
+                <span>Question Notes</span>
+              </summary>
+              <div className="mt-3 ml-6 p-4 bg-gray-50 rounded-md text-sm text-gray-700 whitespace-pre-wrap">
+                {question.notes}
+              </div>
+            </details>
+            {selections.length === contestants.length - 1 && !showNextRoundBtn && (
+              <button
+                type="button"
+                onClick={() => submitAnswers(selections)}
+              >
+                Submit Answers
+              </button>
+            )}
+            {showNextRoundBtn && (
+                <button onClick={advanceRound}>Next Round</button>
             )}
           </div>
         </div>
       </div>
+      
     );
 };
 

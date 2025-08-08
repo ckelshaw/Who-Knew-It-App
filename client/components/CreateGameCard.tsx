@@ -151,7 +151,7 @@ const CreateGameCard = () => {
           new User(u.user_id, u.first_name, u.last_name, u.nickname ?? '', u.role)
         );
 
-        userInstances.forEach(user => {
+        userInstances.forEach((user: User) => {
             if(user.role === "host"){
               setTheHouse(new User(user.userId, user.firstName, user.lastName, user.nickname, user.role));
             }

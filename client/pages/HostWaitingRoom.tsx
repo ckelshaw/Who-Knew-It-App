@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useParams } from "react-router-dom";
 import { gamePlayReducer, initialGameState } from '../reducers/gamePlayReducer';
 import { Question } from "../../shared/classes/Question";
@@ -8,6 +8,7 @@ import { User } from '../../shared/classes/User';
 import ScoreBanner from '../components/ScoreBanner';
 import HostQuestionDisplay from "../components/HostQuestionDisplay";
 import type { GuessRecord } from '../src/types/GuessRecord'
+import GameSummaryModal from '../components/GameSummaryModal';
 
 type incomingUser = {
     id: string,
@@ -19,7 +20,8 @@ type incomingUser = {
 
 const HostWaitingRoom = () => {
     const { game_id } = useParams();
-    const [game, dispatch] = useReducer(gamePlayReducer, initialGameState)
+    const [game, dispatch] = useReducer(gamePlayReducer, initialGameState);
+    const [open, setOpen] = useState(false);
 
     const fetchGame = async () => {
         try {
@@ -40,7 +42,7 @@ const HostWaitingRoom = () => {
                 new Date().toISOString(), 
                 null, 
                 'In Progress', 
-                '', contestants, questions, 0) 
+                '', contestants, questions, 1) 
             })
         } catch (err) {
             console.error('Failed to load game: ', err);
@@ -48,31 +50,42 @@ const HostWaitingRoom = () => {
     }
 
     const submitSelections = (selections: GuessRecord[]) => {
-        console.log("Selections:", selections);
         dispatch({ type: "GUESS_ANSWER", payload: selections });
-        console.log(game);
+    }
+
+    const advanceRound = () => {
+        dispatch({ type: "ADVANCE_ROUND" });
+    }
+
+    const finishGame = () => {
+        dispatch({ type: "CALCULATE_WINNER" });
+        dispatch({ type: "END_GAME" });
+        setOpen(true);
     }
 
     useEffect(() => {
         fetchGame();
     },[])
 
-
     if(game.contestants.length === 0) return <p>Loading...</p>
-
     return (
         <>
             <ScoreBanner users={game.contestants}></ScoreBanner>
             {game.questions.map((q, index) => (
                 <HostQuestionDisplay 
                     key={index} 
-                    question={q} 
+                    question={q}
+                    roundNumber={game.currentRound} 
                     contestants={game.contestants} 
                     questionNumber={index + 1} 
                     submitSelections={submitSelections} 
+                    advanceRound={advanceRound}
                 />
             ))}
-            
+            {game.currentRound === game.questions.length + 1 && (
+                <button onClick={finishGame}>Finish Game</button>
+            )}
+            <GameSummaryModal game={game} isOpen={open} onClose={() => setOpen(false)} />
         </>
     );
 };

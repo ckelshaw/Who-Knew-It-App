@@ -3,11 +3,15 @@ import { Question } from "./Question";
 
 export type GameStatus = "Planned" | "Completed" | "In Progress";
 
+function userFromJson(u: any): User {
+    return new User(u.user_id, u.first_name, u.last_name, u.nickname, u.role);
+  }
+
 export class Game {
   private _game_id: string;
   private _name: string;
   private _date?: string;
-  private _winner: User | null;
+  private _winners: User[] | null;
   private _game_status: GameStatus;
   private _created_at: string;
   private _contestants: User[];
@@ -18,7 +22,7 @@ export class Game {
     game_id: string = "temp",
     name: string = "",
     date: string = "",
-    winner: User | null = null,
+    winners: User[] | null = null,
     game_status: GameStatus = "Planned",
     created_at: string = new Date().toISOString(),
     contestants: User[] = [],
@@ -28,7 +32,7 @@ export class Game {
     this._game_id = game_id;
     this._name = name;
     this._date = date;
-    this._winner = winner;
+    this._winners = winners;
     this._game_status = game_status;
     this._created_at = created_at;
     this._contestants = contestants;
@@ -55,11 +59,11 @@ export class Game {
   public set date(value: string) {
     this._date = value;
   }
-  public get winner(): User | null {
-    return this._winner;
+  public get winners(): User[] | null {
+    return this._winners;
   }
-  public set winner(value: User) {
-    this._winner = value;
+  public set winners(value: User[] | null) {
+    this._winners = value;
   }
   public get game_status(): GameStatus {
     return this._game_status;
@@ -99,7 +103,7 @@ export class Game {
       partial["game_id"] ?? this._game_id,
       partial["name"] ?? this._name,
       partial["date"] ?? this._date,
-      partial["winner"] ?? this._winner,
+      partial["winners"] ?? this._winners,
       partial["game_status"] ?? this._game_status,
       partial["created_at"] ?? this._created_at,
       partial["contestants"] ?? [...this._contestants],
@@ -119,7 +123,7 @@ export class Game {
       obj.contestants
         ? obj.contestants.map(
             (u: any) =>
-              new User(u.user_id, u.first_name, u.last_name, u.nickname)
+              new User(u.user_id, u.first_name, u.last_name, u.nickname, u.role)
           )
         : [],
       [],
@@ -127,31 +131,29 @@ export class Game {
     );
   }
 
-  static completedFromJson(obj: any): Game {
-    return new Game(
-      obj.game_id,
-      obj.game_name,
-      obj.date,
-      obj.winner
-        ? new User(
-            obj.winner.user_id,
-            obj.winner.first_name,
-            obj.winner.last_name,
-            obj.winner.nickname
-          )
-        : null,
-      obj.game_status,
-      obj.created_at,
-      obj.contestants
-        ? obj.contestants.map(
-            (u: any) =>
-              new User(u.user_id, u.first_name, u.last_name, u.nickname)
-          )
-        : [],
-      [], // or map questions if included
-      0
-    );
+static completedFromJson(obj: any): Game {
+  const contestants: User[] = (obj.contestants ?? []).map(userFromJson);
+
+  // Normalize winners: prefer array if present; else wrap single winner; else []
+  const winnersArray: User[] = (obj.winners ?? [])
+    .map(userFromJson);
+
+  if (!winnersArray.length && obj.winner) {
+    winnersArray.push(userFromJson(obj.winner));
   }
+
+  return new Game(
+    obj.game_id,
+    obj.game_name,
+    obj.date,
+    winnersArray.length ? winnersArray : null, // null if none
+    obj.game_status,
+    obj.created_at,
+    contestants,
+    [],                                        // questions if provided
+    0
+  );
+}
 
   // addUser(user: User) {
   //   this.users.set(user.userId, user);
