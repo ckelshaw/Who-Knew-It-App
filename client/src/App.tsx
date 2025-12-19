@@ -1,8 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import AdminLogin from '../pages/AdminLogin';
 import Dashboard from '../pages/Dashboard';
-import HostWaitingRoom from '../pages/HostWaitingRoom';
-import ContestantGame from '../pages/ContestantGame';
+import HostRoute from '../pages/HostRoute';
+import ContestantRoute from '../pages/ContestantRoute';
 import './App.css'
 
 function App() {
@@ -12,8 +12,10 @@ function App() {
       <Routes>
         <Route path="/login" element={<AdminLogin />} />
         <Route path="/admin" element={<Dashboard />} />
-        <Route path="/host/waiting-room/:game_id" element={<HostWaitingRoom />} />
-        <Route path="/contestant/:game_id/:user_id" element={<ContestantGame />} />
+        <Route path="/host/:game_id/:user_id" element={<HostRoute />} />
+        <Route path="/contestant/:game_id/:user_id" element={<ContestantRoute />} />
+        <Route path="/host/:game_id" element={<HostRoute />} />
+        <Route path="/contestant/:game_id" element={<ContestantRoute />} />
       </Routes>
     </>
   )

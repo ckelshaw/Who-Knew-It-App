@@ -11,9 +11,10 @@ const AdminDashboard = () => {
     try {
       const res = await fetch("/api/games");
       const data = await res.json();
-      console.log(data);
+      console.log("data", data);
       if (res.ok) {
         const gamesArray = data.map(gameData => Game.plannedFromJson(gameData));
+        console.log(gamesArray);
         setPlannedGames(gamesArray);
       }
     } catch (err) {

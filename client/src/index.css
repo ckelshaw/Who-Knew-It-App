@@ -84,6 +84,12 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+button:disabled {
+  opacity: 50;
+  cursor:not-allowed;
+  border-color: grey;
+  background-color: var(--color-muted-gray);
+}
 
 @media (prefers-color-scheme: light) {
   :root {

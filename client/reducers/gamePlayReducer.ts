@@ -9,6 +9,7 @@ type GameAction =
     | { type: "SUBMIT_FAKE_ANSWER"; payload: FakeAnswer }
     | { type: "GUESS_ANSWER"; payload: GuessRecord[] }
     | { type: "ADVANCE_ROUND"; }
+    | { type: "SET_CURRENT_ROUND"; payload: number }
     | { type: "CALCULATE_WINNER"}
     | { type: "END_GAME" };
 
@@ -58,10 +59,10 @@ export const gamePlayReducer = (state: Game, action: GameAction): Game => {
         const fakeAnswer = action.payload;
 
         const newAnswer = new Answer(
-          crypto.randomUUID(),
+          fakeAnswer.id,
           fakeAnswer.question_id,
           fakeAnswer.answer_text,
-          fakeAnswer.user_id,
+          fakeAnswer.user_id || "",
           false,
           new Date().toISOString(),
           ""
@@ -117,6 +118,9 @@ export const gamePlayReducer = (state: Game, action: GameAction): Game => {
             ? 1
             : state.currentRound + 1;
         return state.copyWith({ currentRound: nextRound });
+      }
+      case "SET_CURRENT_ROUND": {
+        return state.copyWith({ currentRound: action.payload });
       }
       case "CALCULATE_WINNER": {
         if (!state.contestants.length) return state;

@@ -14,7 +14,19 @@ export function PlannedGames({ games }: PlannedGamesProps) {
 
   const navigateToGame = async (game_id: string) => {
     console.log("Game id: ", game_id);
-    navigate(`/host/waiting-room/${game_id}`);
+    let hostId = "";
+    games.forEach((g) => {
+      if(g.game_id === game_id){
+        g.contestants.forEach((c) => {
+          if (c.role === "host") {
+            hostId = c.userId;
+          }
+        });
+      }
+      
+    });
+
+    navigate(`/host/${game_id}/${hostId}`);
   };
 
   return (

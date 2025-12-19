@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import { DndContext, DragEndEvent } from '@dnd-kit/core'
 // import { SortableContext, arrayMove, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 // import { CSS } from '@dnd-kit/utilities';
@@ -6,15 +6,21 @@ import { Question } from '../../shared/classes/Question';
 import { User } from '../../shared/classes/User';
 import Select, { type MultiValue, type StylesConfig } from 'react-select';
 import type { GuessRecord } from '../src/types/GuessRecord'
+import Badge from './ui/Badge';
+import { useSocket } from '../src/socket/socket-context';
 // import type { Guess } from '../../shared/types/types';
 
 type HQDProps = {
+    allQuestionsIn: boolean
     question: Question;
     roundNumber: number | undefined;
     contestants: User[];
     questionNumber: number;
     submitSelections: (selections: GuessRecord[]) => void;
     advanceRound: () => void;
+    lockInAnswers: () => void;
+    showContestantsAnswer: (answerId: string) => void;
+    showWriter: (answerId: string) => void;
 }
 
 type Option = {
@@ -23,8 +29,10 @@ type Option = {
 }
 
 
-const HostQuestionDisplay = ({ question, roundNumber, contestants, questionNumber, submitSelections, advanceRound }: HQDProps) => {
-    const [selections, setSelections] = useState<GuessRecord[]>([]);
+const HostQuestionDisplay = ({ allQuestionsIn, question, roundNumber, contestants, questionNumber, submitSelections, advanceRound, lockInAnswers, showContestantsAnswer, showWriter }: HQDProps) => {
+  const socket = useSocket();  
+  const [selections, setSelections] = useState<GuessRecord[]>([]);
+    const [disableLockInButton, setDisableLockInButton] = useState(false);
     const [showNextRoundBtn, setshowNextRoundBtn] = useState(false);
     const handleSelectChange = (answerId: string, newValue: MultiValue<Option>) => {
         const selectedUserIds = newValue.map(o => o.value); // users chosen for this answer
@@ -46,6 +54,15 @@ const HostQuestionDisplay = ({ question, roundNumber, contestants, questionNumbe
             return [...withoutThisAnswer, ...newRecords];
         });
     };
+
+    useEffect(() => {
+        const disableButton = () => {
+            console.log("[host] Answers are locked");
+            setDisableLockInButton(true);
+        };
+
+        socket?.on("answers_locked_in", disableButton);
+    },[socket]);
 
     const userOptions: Option[] = contestants
       .filter((c: User) => c.role !== "host") // remove host
@@ -184,6 +201,12 @@ const HostQuestionDisplay = ({ question, roundNumber, contestants, questionNumbe
                         Correct Answer
                       </div>
                     )}
+                    <Badge variant="clickable" className="text-xs" onClick={() => showContestantsAnswer(a.id)}>
+                      Reveal Answer
+                    </Badge>
+                    <Badge variant="clickable" className="text-xs" onClick={() => showWriter(a.id)}>
+                      Reveal Writer
+                    </Badge>
                   </div>
 
                   <div className="space-y-3">
@@ -235,6 +258,9 @@ const HostQuestionDisplay = ({ question, roundNumber, contestants, questionNumbe
                 {question.notes}
               </div>
             </details>
+            {allQuestionsIn && (
+              <button onClick={lockInAnswers} disabled={disableLockInButton} >Lock in Fake Answers</button>
+            )}
             {selections.length === contestants.length - 1 && !showNextRoundBtn && (
               <button
                 type="button"

@@ -13,13 +13,13 @@ const LoginPage = () => {
       const res = await fetch("http://localhost:5050/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.role === "house") {
-        localStorage.setItem("role", "house");
         navigate("/admin");
       } else {
         setError("Unauthorized user");

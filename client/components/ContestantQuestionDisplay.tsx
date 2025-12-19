@@ -1,24 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Question } from "../../shared/classes/Question";
 import { Textarea } from "./ui/textarea";
-import type { FakeAnswer } from "../src/types/GuessRecord";
+// import type { FakeAnswer } from "../src/types/GuessRecord";
 
 type CQDProps = {
     question: Question,
     roundNumber: number,
-    questionNumber: number,
     submitAnswer: (answer: string) => void;
 }
 
-const ContestantQuestionDisplay = ( { question, questionNumber, submitAnswer }: CQDProps ) => {
+const ContestantQuestionDisplay = ( { question, roundNumber, submitAnswer }: CQDProps ) => {
     const [answer, setAnswer] = useState("");
+
+    useEffect(() => {
+      console.log(roundNumber);
+      setAnswer("");
+    },[roundNumber]);
 
     return (
       <>
         <div className="bg-white rounded-lg p-8 space-y-6">
           <div className="space-y-2">
             <div className="text-lg text-gray-500 tracking-wide uppercase">
-              Question {questionNumber}
+              Question {roundNumber}
             </div>
             <h1 className="text-2xl tracking-tight text-gray-900">
               {question.question_text}
