@@ -52,6 +52,9 @@ const HostWaitingRoom = () => {
                     questions: questions.map(q => ({ id: q.id })),
                 });
             }
+            if(socket && game_id){
+                socket?.emit("debug_sync", { gameId: game_id });
+            }
 
             dispatch({ 
                 type: 'SET_GAME', 

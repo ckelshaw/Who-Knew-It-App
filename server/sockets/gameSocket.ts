@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import type { ClientToServerEvents, ServerToClientEvents } from '../../shared/types/socketTypes';
-import { GameManager } from '../../shared/classes/GameManager';
+import { gameManager } from "../state/gameManager";
 import type { GuessRecord } from '../../client/src/types/GuessRecord';
 import { utilFunctions } from '../utils/utilFunctions';
 
@@ -95,6 +95,33 @@ export function createSocketServer(httpServer: any) {
     socket.on("show_writer_to_contestant", ({ gameId, questionId, answerId }) => {
       io.to(gameId).emit("reveal_writer", { gameId, questionId, answerId });
     })
+
+
+    function emitStateSync(gameId: string) {
+      const game = gameManager.getGame(gameId);
+      if (!game) return;
+
+      io.to(gameId).emit("state_sync", {
+        gameId,
+        state: {
+          game_id: game.game_id,
+          currentRound: game.currentRound
+        },
+      });
+    }
+
+    socket.on("state_sync", ({ gameId, state }) => {
+      console.log("[client] state_sync", gameId, state);
+    })
+
+    socket.on("debug_sync", ({ gameId }) => {
+      const g = gameManager.getGame(gameId) ?? gameManager.createGame(gameId);
+      g.currentRound = g.currentRound ? g.currentRound + 1 : 1;
+
+      emitStateSync(gameId);
+    })
+
+    console.log("[server] active games: ", gameManager.getActiveGames());
 
   });
 

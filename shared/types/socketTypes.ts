@@ -2,6 +2,8 @@ import type { GuessRecord } from "../../client/src/types/GuessRecord";
 
 export type Role = "host" | "contestant";
 
+export type GameStateDTO = any; //TODO: type this later
+
 export interface ServerToClientEvents {
     connected: (data: { userId: string; role: Role; gameId: string }) => void;
     round_started: (data: { gameId: string; questionId: string; round: number }) => void;
@@ -13,6 +15,7 @@ export interface ServerToClientEvents {
     answers_locked_in: (data: { gameId: string, questionId: string }) => void;
     reveal_answer: (data: { gameId: string, questionId: string, answerId: string }) => void;
     reveal_writer: (data: { gameId: string, questionId: string, answerId: string }) => void;
+    state_sync: (payload: { gameId: string; state: GameStateDTO }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -26,4 +29,6 @@ export interface ClientToServerEvents {
     lock_in_answers: (data: { gameId: string, questionId: string }) => void;
     show_answer_to_contestant: (data: { gameId: string, questionId: string, answerId: string }) => void;
     show_writer_to_contestant: (data: { gameId: string, questionId: string, answerId: string }) => void;
+    state_sync: (payload: { gameId: string; state: GameStateDTO }) => void;
+    debug_sync: (payload: { gameId: string }) => void;
 }
